@@ -1,11 +1,41 @@
 <!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
 {% extends 'flatpages/default.html' %}
 
-<!-- Название у нас будет products -->
 {% block title %} Post {% endblock title %}
 
-<!-- В контенте на странице мы выводим все товары -->
 {% block content %}
-                    <h1>Все новости</h1>
-                    {{ text }}
+   <h1> Все новости</h1>
+   <!-- Если в переменной next_sale будет None,
+   то выведется указанный в фильтре текст -->
+   <h3> {{ news|length }} </h3>
+
+   <hr>
+   {% if Post %}
+       <table>
+           <tr>
+               <td> Заголовок </td>
+               <td> Дата публикации </td>
+               <td> Текст статьи </td>
+           </tr>
+           заголовок, дата публикации в формате день.месяц.год, затем первые 20 слов текста статьи.
+           Можно вывести как списком, так и таблицей. Новости должны выводиться в порядке от более свежей к старой.
+
+           default_if_none:"Чуть позже сообщим о новых новостях !"
+           NEWS|length|
+
+           NEWS = 'NW'
+           ARTICLE = 'AR'
+
+           {% for post in Post %}
+           <tr>
+               <td>{{ post.title }}</td>
+               <td>{{ post.dateCreation|date:'d M Y' }}</td>
+               <td>{{ post.text }}</td>
+           </tr>
+           {% endfor %}
+
+       </table>
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
 {% endblock content %}
