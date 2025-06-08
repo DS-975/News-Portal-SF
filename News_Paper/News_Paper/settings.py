@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 1 # для корректной работы 'django.contrib.sites'
 
 # Application definition
 
@@ -37,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.sites', # для site в файле prodject/prodject/urls.py
+    'django.contrib.flatpages', # для встроенного приложения flatpages применения стилей
+
     'news'
 ]
 
@@ -48,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware', # для корректной работы встроенного приложения flatpages
 ]
 
 ROOT_URLCONF = 'News_Paper.urls'
@@ -55,7 +63,7 @@ ROOT_URLCONF = 'News_Paper.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Путь до шаблонов
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,3 +129,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_DIRS = [ BASE_DIR / 'static']
+# Это настройка в Django, которая говорит:
+# Ищи статические файлы (например, CSS, JavaScript, картинки)
+# в папке static, которая находится внутри вашего проекта.
+# BASE_DIR — это папка, где находится ваш проект.
+# BASE_DIR / 'static' — это путь к папке static внутри вашего проекта.

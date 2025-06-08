@@ -1,282 +1,379 @@
-# Cоздём новые миграции
-python manage.py makemigrations
-# Применяем миграции
-python manage.py migrate
-#
+### Создаём виртуальное окружение:
+    python -m venv venv
+- - - 
+### Активируем виртуальное окружение:
+    venv\scripts\activate
+- - - 
+### Устанавливаем Django в свежее виртуальное окружение:
+    py -m pip install Django==5.2.1
+- - - 
+### Запускаем команду создания проекта:
+    py -m django startproject project
+- - - 
+### Переходим в директорию проекта:
+    cd project
 
-# Запускаем окно командной строки
-python manage.py shell
-#
+Здесь файл manage.py, который является точкой входа для управления проектом.
+
+- - - 
+### Также через консоль запустим следующую команду, которая создаст новое приложение news.
+    py manage.py startapp simpleapp
+
+
+### Базовая настройка Django flatpages ссылки
+- - -
+## В файле prodject/prodject/settings.py :
+- - -
+    SITE_ID = 1 # для корректной работы 'django.contrib.sites'
+- - -
+    В список INSTALLED_APPS добавляем строки :
+
+        'django.contrib.sites', # для site в файле prodject/prodject/urls.py
+        'django.contrib.flatpages', # для встроенного приложения flatpages применения стилей
+- - - 
+    В список MIDDLEWARE добавляем строку :
+        
+        MIDDLEWARE — это нечто вроде декораторов, которые применяются к абсолютно любой ссылке в веб-приложении и так же могут менять её поведение.
+        'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware', # для корректной работы встроенного приложения flatpages
+- - - 
+    В список TEMPLATES добавляем в 'DIRS'
+        
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Путь до шаблонов
+- - - 
+    В конец файла добавить:
+        
+        STATICFILES_DIRS = [ BASE_DIR / 'static']
+        Это настройка в Django, которая говорит:
+        Ищи статические файлы (например, CSS, JavaScript, картинки)
+        в папке static, которая находится внутри вашего проекта.
+        BASE_DIR — это папка, где находится ваш проект.
+        BASE_DIR / 'static' — это путь к папке static внутри вашего проекта.
+- - - 
+    В файле prodject/prodject/urls.py : 
+        
+        В список urlpatterns добавляем строку :
+        path('pages/', include('django.contrib.flatpages.urls')), # для стилей
+- - - 
+## В файле django_views\prodject\prodject\urls.py
+    from django.contrib import admin
+    from django.urls import path, include
+    
+    urlpatterns = [
+      path('admin/', admin.site.urls),
+      path('pages/', include('django.contrib.flatpages.urls')), # для стилей
+    ]
+- - - 
+- - -
+### Создание администратора 
+    
+    python manage.py createsuperuser
+    (admin admin)
+- - -
+- - - 
+- - -
+- - -
+### Базовая настройка для стилей
+- - -
+### В директории с manage.py создаём папку static
+![img.png](img/img.png)
+### В папку static добавляем папки css, js и index.html
+![img_1.png](img/img_1.png)
+- - - -
+### Создаем файл default.html (prodject/templates/flatpages/default.html)
+![img_2.png](img/img_2.png)
+### Редактируем файл на основе файла index.html (prodject/static/index.html)
+
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+            <meta name="description" content="" />
+            <meta name="author" content="" />
+            <title>{% block title %}{% endblock title %}</title>
+            <!-- Favicon-->
+
+
+            <!-- подгружает static -->
+            {% load static %}
+
+
+            <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+            <!-- Core theme CSS (includes Bootstrap)-->
+
+
+            <!-- Прописываем путь до файла-->
+            <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+
+
+        </head>
+        <body>
+            <!-- Responsive navbar-->
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container">
+                    <a class="navbar-brand" href="#">Start Bootstrap</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#">Action</a></li>
+                                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Page content-->
+
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        {% block content %}
+                        {% endblock content %}
+                    </div>
+                </div>
+            </div>
+
+
+        </body>
+    </html>
+- - -
+- - - 
+- - -
+### Подключил внешнее приложение simpleapp в список INSTALLED_APPS, в файле project/settings.py
+Это позволит Django обнаружить созданное приложение.
+
+    INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'django.contrib.sites', # для site в файле prodject/prodject/urls.py
+    'django.contrib.flatpages', # для встроенного приложения flatpages применения стилей
+
+    'simpleapp', # <- (ПРИЛОЖЕНИЕ)
+]
+- - -
+### Добавил приложению модели simpleapp/models.py
+Обратите внимание, что мы дополнительно
+указали методы __str__ у моделей.
+Django будет их использовать, когда потребуется
+где-то напечатать наш объект целиком.
+Например, в панели администратора или в темплейте.
+Вот как раз для вывода в HTML странице мы и указали,
+как должен выглядеть объект нашей модели.
+    from django.db import models
+from django.core.validators import MinValueValidator
+
+    # Товар для нашей витрины
+    class Product(models.Model):
+        name = models.CharField(
+            max_length=50,
+            unique=True, # названия товаров не должны повторяться
+        )
+        description = models.TextField()
+        quantity = models.IntegerField(
+            validators=[MinValueValidator(0)],
+        )
+        # поле категории будет ссылаться на модель категории
+        category = models.ForeignKey(
+            to='Category',
+            on_delete=models.CASCADE,
+            related_name='products', # все продукты в категории будут доступны через поле products
+        )
+        price = models.FloatField(
+            validators=[MinValueValidator(0.0)],
+        )
+    
+        def __str__(self):
+            return f'{self.name.title()}: {self.description[:20]}'
+    
+    
+    # Категория, к которой будет привязываться товар
+    class Category(models.Model):
+        # названия категорий тоже не должны повторяться
+        name = models.CharField(max_length=100, unique=True)
+    
+        def __str__(self):
+            return self.name.title()
+- - -
+### Зарегистрировал модели для приложения, simpleapp/admin.py (иначе мы не увидим их в админке)
+    from django.contrib import admin
+    from .models import Category, Product
+
+    admin.site.register(Category)
+    admin.site.register(Product)
+- - - 
+### Написал представление для приложения, simpleapp/views.py
+    # Импортируем класс, который говорит нам о том,
+    # что в этом представлении мы будем выводить список объектов из БД
+    from django.views.generic import ListView, DetailView
+    from .models import Product
+    
+    
+    class ProductsList(ListView):
+        # Указываем модель, объекты которой мы будем выводить
+        model = Product
+        # Поле, которое будет использоваться для сортировки объектов
+        ordering = 'name'
+        # Указываем имя шаблона, в котором будут все инструкции о том,
+        # как именно пользователю должны быть показаны наши объекты
+        template_name = 'products.html'
+        # Это имя списка, в котором будут лежать все объекты.
+        # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
+        context_object_name = 'products'
+    
+    
+    # Вот так мы можем использовать дженерик ListView для вывода списка товаров:
+    #
+    # Создаем свой класс, который наследуется от ListView.
+    # Указываем модель, из которой будем выводить данные.
+    # Указываем поле сортировки данных модели (необязательно).
+    # Записываем название шаблона.
+    # Объявляем, как хотим назвать переменную в шаблоне.
+    
+    class ProductDetail(DetailView):
+        # Модель всё та же, но мы хотим получать информацию по отдельному товару
+        model = Product
+        # Используем другой шаблон — product.html
+        template_name = 'product.html'
+        # Название объекта, в котором будет выбранный пользователем продукт
+        context_object_name = 'product'
+- - -
+### Настроил адрес, для представления приложения, создав файл simpleapp/urls.py
+    Чтобы любой пользователь приложения мог ознакомиться с товарами.
+    Для этого необходимо настроить пути в файле urls.py.
+    При выполнении команды инициализации нового приложения Django
+    не создавал этот файл в нашей директории,
+    поэтому сделал сам.
+    from django.urls import path
+    # Импортируем созданное нами представление
+    from .views import ProductsList, ProductDetail
+    
+    urlpatterns = [
+       # path — означает путь.
+       # В данном случае путь ко всем товарам у нас останется пустым,
+       # чуть позже станет ясно почему.
+       # Т.к. наше объявленное представление является классом,
+       # а Django ожидает функцию, нам надо представить этот класс в виде view.
+       # Для этого вызываем метод as_view.
+       path('', ProductsList.as_view()),
+       # pk — это первичный ключ товара, который будет выводиться у нас в шаблон
+       # int — указывает на то, что принимаются только целочисленные значения
+       path('<int:pk>', ProductDetail.as_view()),
+    ]
+- - -
+### Добавил отдельную ссылку products/ дял просмотр всех товаров в файле project/urls.py
+    from django.contrib import admin
+    from django.urls import path, include
+    
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('pages/', include('django.contrib.flatpages.urls')), # для стилей
+    
+        # Делаем так, чтобы все адреса из нашего приложения (simpleapp/urls.py)
+        # подключались к главному приложению с префиксом products/.
+        path('products/', include('simpleapp.urls')), # <---------- (ссылка products/)
+        path('product/', include('simpleapp.urls')), # <----------- 
+    ]
+- - -
+### Добавил 
+
+
+
+- - -
+
+
+
+### Запустить сервер
+    
+    py .\manage.py runserver
+
+- - -
+
+### Команда для создания миграций в Django,
+    
+    py manage.py makemigrations
+
+запускает скрипт, который проходиться по всем классам,
+от наследованного models.Mogel и смотрит были внесены какие-то изменения,
+когда добавил в файл NewsPaper/news/models.py (приложение) информацию об БД
+- - - 
+
+### Применение миграции
+    
+    py .\manage.py migrate
+
+- иногда после применения миграции возникают ошибки, кажется с начало вс ок,
+  но потом вываливаются ошибки,
+  нужно просто удалить в БД таблицу django_session,
+  и применить миграцию ошибки исчезнут
+
+
+Если возникает ошибки с БД в частности с моделями, то можно просто откатиться:
+- Удалить файл - 0001_initial.py (NewsPaper/news/migrations/0001_initial.py)
+- В БД удалить таблицы который создали, (приложение DBeaver)
+- В БД переходим в таблицу django_migrations,  (приложение DBeaver)
+  |    - нажимаем на | Данные |  (приложение DBeaver)
+  |    - удаляем последнюю строчку записи (нажимаем на строку слева и на кнопку |-| (удалить запись внизу))  (приложение DBeaver)
+  |    - обновляем/сохраняем таблицу (приложение DBeaver)
+
+- иногда после применения миграции возникают ошибки, кажется с начало вс ок,
+  |    - но потом вываливаются ошибки,
+  |    - нужно просто удалить в БД таблицу django_session, (приложение DBeaver)
+  |    - и применить миграцию ошибки исчезнут
+
+
+
+
+
+
+
+
+
+
+
 
 from news.models import *
-#
-#[ 1 ]Создадим двух пользователей (с помощью метода User.objects.create_user('username')) + Проверка.
-#
-# Создаём 1 пользователя
-User_1 = User.objects.create_user(username='User_1')
-#
-# Создаём 2 пользователя
-User_2 = User.objects.create_user(username='User_2')
-#
-# Проверка, что все Пользователи добавлины (2)
-#
-all_users = User.objects.all()
-all_users
-#
-#[ 2 ]Создадим два объекта модели Author
-#
-# Создаём 1 объект модели Author
-#
-Author_1 = Author.objects.create(authorUser=User_1)
-#
-# Создаём 2 объект модели Author
-#
-Author_2 = Author.objects.create(authorUser=User_2)
-#
-# Проверка, что все Авторы добавлины (2)
-all_author = Author.objects.all()
-all_author
-#
-#[ 3 ]Добавим 4 категории в модель Category. + Проверка
-#
-# Добавим 1 Категорию
-Category_1 = Category.objects.create(name='Category_1')
-#
-# Добавим 2 Категорию
-Category_2 = Category.objects.create(name='Category_2')
-#
-# Добавим 3 Категорию
-Category_3 = Category.objects.create(name='Category_3')
-#
-# Добавим 4 Категорию
-Category_4 = Category.objects.create(name='Category_4')
-#
-# Проверка, что все Kатегории добавлины (4)
-#
-all_category = Category.objects.all()
-all_category
-#
-#[ 4 ]Добавим 4 Поста + Проверка
-#
-# Добавим 1 Пост( 1 Авторa, ARTICLE - Cтатья, title - заголовок, text - текст)
-Post_1 = Post.objects.create(author=Author_1, categoryType='AR', title='Post_1', text='(1)Cтатья 1 Авторa')
-#
-# Добавим 2 Пост( 1 Авторa, ARTICLE - Cтатья, title - заголовок, text - текст)
-Post_2 = Post.objects.create(author=Author_2, categoryType='AR', title='Post_2', text='(2)Cтатья 2 Авторa')
-#
-# Добавим 3 Пост( 2 Авторa, NEWS - Новость, title - заголовок, text - текст)
-Post_3 = Post.objects.create(author=Author_1, categoryType='NW', title='Post_3', text='(1)Новость 1 Авторa')
-#
-# Добавим 4 Пост( 2 Авторa, NEWS - Новость, title - заголовок, text - текст)
-Post_4 = Post.objects.create(author=Author_2, categoryType='NW', title='Post_4', text='(2)Новость 2 Авторa')
-#
-# Проверка, что все Посты добавлины (4)
-#
-all_post = Post.objects.all()
-all_post
-#
-#[ 5 ]Присвоим им категории/Добавим к Постам Категории.
-#
-# Добавим к 1 Посту Категорию(1) (Category_1)
-Post_1.postCategory.add(Category_1)
-#
-# Добавим к 2 Посту Категорию(1) (Category_1)
-Post_2.postCategory.add(Category_1)
-#
-# Добавим к 3 Посту Категорию(1) (Category_1)
-Post_3.postCategory.add(Category_1)
-#
-# Добавим к 4 Посту Категорию(1) (Category_1)
-Post_4.postCategory.add(Category_1)
-#
-# Добавим к 1 Посту Категорию(2) (Category_2)
-Post_1.postCategory.add(Category_2)
-#
-# Добавим к 2 Посту Категорию(2) (Category_2)
-Post_2.postCategory.add(Category_2)
-#
-# Добавим к 3 Посту Категорию(2) (Category_2)
-Post_3.postCategory.add(Category_2)
-#
-# Добавим к 4 Посту Категорию(2) (Category_2)
-Post_4.postCategory.add(Category_2)
-#
-# Добавим к 1 Посту Категорию(3) (Category_3)
-Post_1.postCategory.add(Category_3)
-#
-# Добавим к 2 Посту Категорию(3) (Category_3)
-Post_2.postCategory.add(Category_3)
-#
-# Добавим к 3 Посту Категорию(3) (Category_3)
-Post_3.postCategory.add(Category_3)
-#
-# Добавим к 4 Посту Категорию(3) (Category_3)
-Post_4.postCategory.add(Category_3)
-#
-# Добавим к 1 Посту Категорию(4) (Category_4)
-Post_1.postCategory.add(Category_4)
-#
-# Добавим к 2 Посту Категорию(4) (Category_4)
-Post_2.postCategory.add(Category_4)
-#
-# Добавим к 3 Посту Категорию(4) (Category_4)
-Post_3.postCategory.add(Category_4)
-#
-# Добавим к 4 Посту Категорию(4) (Category_4)
-Post_4.postCategory.add(Category_4)
-#
-#[ 6 ]Создать как минимум 4 комментария к разным объектам модели Post (в каждом объекте должен быть как минимум один комментарий)Создаём Комментари + Проверка
-#
-# Создаём 1 Комментарий (Comment_1) (Author_1) (ARTICLE)
-Comment_1 = Comment.objects.create(commentPost=Post_1, commentUser=Author_1.authorUser, text='Comment_1 | Post_1 | Author_1')
-#
-# Создаём 2 Комментарий (Comment_2) (Author_2) (ARTICLE)
-Comment_2 = Comment.objects.create(commentPost=Post_2, commentUser=Author_2.authorUser, text='Comment_2 | Post_2 | Author_2')
-#
-# Создаём 3 Комментарий (Comment_3) (Author_1) (NEWS)
-Comment_3 = Comment.objects.create(commentPost=Post_3, commentUser=Author_1.authorUser, text='Comment_3 | Post_3 | Author_1')
-#
-# Создаём 4 Комментарий (Comment_4) (Author_2) (NEWS)
-Comment_4 = Comment.objects.create(commentPost=Post_4, commentUser=Author_2.authorUser, text='Comment_4 | Post_4 | Author_2')
-#
-# Проверка, что все Комментарии добавлины (4)
-#
-all_comment = Comment.objects.all()
-all_comment
-#
-#[ 7 ]Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
-# + 10 like к Комментарию(1) (Comment_1) (+10) (Author_1) (ARTICLE) + выводит Рейтинг
-#
-Comment_1.like() # 1 like
-Comment_1.like() # 2 like
-Comment_1.like() # 3 like
-Comment_1.like() # 4 like
-Comment_1.like() # 5 like
-Comment_1.like() # 6 like
-Comment_1.like() # 7 like
-Comment_1.like() # 8 like
-Comment_1.like() # 9 like
-Comment_1.like() # 10 like
-#
-# reting - выводит Рейтинг Коментария(1) (Comment_1) (Author_1) (ARTICLE)
-Comment_1.rating
-#
-# - 3 dislike к Комментарию(1) (Comment_1) (-3) (Author_1) (ARTICLE) + выводит Рейтинг
-#
-Comment_1.dislike() # 9 like
-Comment_1.dislike() # 8 like
-Comment_1.dislike() # 7 like
-#
-# reting - выводит Рейтинг Коментария(1) (Comment_1) (Author_1) (ARTICLE) + выводит Рейтинг
-Comment_1.rating
-#
-# + 6 like к Комментарию(2) (Comment_2) (+6) (Author_2) (ARTICLE) + выводит Рейтинг
-#
-Comment_2.like() # 1 like
-Comment_2.like() # 2 like
-Comment_2.like() # 3 like
-Comment_2.like() # 4 like
-Comment_2.like() # 5 like
-Comment_2.like() # 6 like
-#
-# reting - выводит Рейтинг Коментария(2) (Comment_2) (Author_2) (ARTICLE)
-Comment_2.rating
-#
-# - 3 dislike к Комментарию(2) (Comment_2) (-3) (Author_2) (ARTICLE) + выводит Рейтинг
-#
-Comment_2.dislike() # 5 like
-Comment_2.dislike() # 4 like
-Comment_2.dislike() # 3 like
-#
-# reting - выводит Рейтинг Коментария(2) (Comment_2) (Author_2) (ARTICLE)
-Comment_2.rating
-#
-# + 7 like к Комментарию(3) (Comment_3) (+7) (Author_1) (NEWS) + выводит Рейтинг
-#
-Comment_3.like() # 1 like
-Comment_3.like() # 2 like
-Comment_3.like() # 3 like
-Comment_3.like() # 4 like
-Comment_3.like() # 5 like
-Comment_3.like() # 6 like
-Comment_3.like() # 7 like
-#
-# reting - выводит Рейтинг Коментария(3) (Comment_3) (Author_1) (NEWS)
-Comment_3.rating
-#
-# - 3 dislike к Комментарию(3) (Comment_3) (-3) (NEWS) + выводит Рейтинг
-#
-Comment_3.dislike() # 6 like
-Comment_3.dislike() # 5 like
-Comment_3.dislike() # 4 like
-#
-# reting - выводит Рейтинг Коментария(3) (Comment_3) (Author_1) (NEWS)
-Comment_3.rating
-#
-# + 3 like к Комментарию(4) (Comment_4) (+3) (Author_2) (NEWS) + выводит Рейтинг
-#
-Comment_4.like() # 1 like
-Comment_4.like() # 2 like
-Comment_4.like() # 3 like
-#
-# reting - выводит Рейтинг Коментария(4) (Comment_4) (Author_2) (NEWS)
-Comment_4.rating
-#
-# - 1 dislike к Комментарию(4) (Comment_4) (-1) (Author_2) (NEWS) + выводит Рейтинг
-#
-Comment_4.dislike() # 2 like
-#
-# reting - выводит Рейтинг Коментария(4) (Comment_4) (Author_2) (NEWS)
-Comment_4.rating
-#
-#[ 8 ]Обновим рейтинги пользователей.
-#
-# Обновим рейтинг 1 Автора (Author_1)
-#
-Author_1.update_rating()
-#
-# Выведим рейтинг 1 Автора (Author_1)
-#
-Author_1.ratingAuthor
-#
-# Обновим рейтинг 2 Автора (Author_2)
-#
-Author_2.update_rating()
-#
-# Выведим рейтинг 2 Автора (Author_2)
-#
-Author_2.ratingAuthor
-#
-#[ 9 ]Выводим username и рейтинг лучшего пользователя
-#
-bestUser = Author.objects.order_by('-ratingAuthor').first()
-#
-# Проверяем как работает bestUser
-#
-bestUser
-#
-# Выводим username лучшего пользователя
-#
-bestUser.authorUser.username
-#
-# Выводим рейтинг лучшего пользователя
-#
-bestUser.ratingAuthor
-#
-#[ 10 ] Выведем дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье. title - заголовок, text - текст
-#
-Best_Post = Post.objects.order_by('-rating')[:1]
-# Выведем дату добавления
-Best_Post.values('dateCreation')
-# Выведем username автора
-Best_Post.values('author__authorUser__username')
-# Выведем рейтинг
-Post.objects.order_by('-rating')[0].rating
-# Выведем заголовок
-Best_Post.values('title')
-# Выведем превью лучшей статьи
-Post.objects.order_by('-rating')[0].preview()
-#
-#[ 11 ]Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
-#
-Post.objects.order_by('-rating')[0].comment_set.all().values('dateCreation', 'commentUser__username', 'rating', 'text')
+
+# Сначала создайте категорию, если её ещё нет
+category = Category.objects.create(name='Бытовая химия')
+
+# Затем создайте товар, указав ВСЕ обязательные поля
+p_1 = Product.objects.create(name='Мочалка', description='Очень хорошо моет', quantity=10, category=category, price=299.99)
+
+p_2 = Product.objects.create(name='Зубная Щётка', description='Классно чистит зубы', quantity=10, category=category, price=99.99)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+echo "# django_views" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M master
+git remote add origin https://github.com/DS-975/django_views.git
+git push -u origin master
