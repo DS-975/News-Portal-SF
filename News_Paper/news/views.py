@@ -4,6 +4,7 @@ from django.views.generic import ListView, DetailView
 from .models import Post
 
 from datetime import datetime
+from pprint import pprint
 
 class PostList(ListView):
     # Указываем модель, объекты которой мы будем выводить
@@ -15,7 +16,7 @@ class PostList(ListView):
     template_name = 'news.html'
     # Это имя списка, в котором будут лежать все объекты.
     # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
-    context_object_name = 'Post'
+    context_object_name = 'text'
 
     # Метод get_context_data позволяет нам изменить набор данных,
     # который будет передан в шаблон.
@@ -29,8 +30,13 @@ class PostList(ListView):
         context['time_now'] = datetime.utcnow()
         # Добавим ещё одну пустую переменную,
         # чтобы на её примере рассмотреть работу ещё одного фильтра.
-        context['next_sale'] = "Распродажа в среду!"
         context['news'] = 'Нет новостей'
+
+        # Количество всех записей
+        context['all_news'] = len(context['text'])
+
+        # Вывод всего словаря context
+        pprint(context)
         return context
 
 
