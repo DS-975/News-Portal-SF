@@ -20,9 +20,9 @@
     py manage.py startapp simpleapp
 
 
-### Базовая настройка Django flatpages ссылки
+## Базовая настройка Django flatpages ссылки
 - - -
-## В файле prodject/prodject/settings.py :
+### В файле prodject/prodject/settings.py :
 - - -
     SITE_ID = 1 # для корректной работы 'django.contrib.sites'
 - - -
@@ -54,7 +54,7 @@
         В список urlpatterns добавляем строку :
         path('pages/', include('django.contrib.flatpages.urls')), # для стилей
 - - - 
-## В файле django_views\prodject\prodject\urls.py
+### В файле django_views\prodject\prodject\urls.py
     from django.contrib import admin
     from django.urls import path, include
     
@@ -72,7 +72,7 @@
 - - - 
 - - -
 - - -
-### Базовая настройка для стилей
+## Базовая настройка для стилей
 - - -
 ### В директории с manage.py создаём папку static
 ![img.png](img/img.png)
