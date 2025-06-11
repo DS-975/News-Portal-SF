@@ -3,20 +3,15 @@
 
 <!-- Название у нас будет Product -->
 {% block title %} Post {% endblock title %}
- <hr>
 <!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
-
+<hr>
 {% block content %}
    <!-- Выводим text, только если они есть с помощью тега if -->
    {% if text %}
-       <tr>
-           <td>{{ text.title }}</td>
-           <td>{{ text.dateCreation|date:'d M Y' }}</td>
-           <td>{{ text.text }}</td>
-       </tr>
+        <h3>| - - {{ text.title }} - - | - - {{ text.dateCreation|date:'d M Y' }} - - | - - {{ text.text }} - - |</h3>
    {% else %}
        <!-- Если новостей нет, говорим, что товаров нет) -->
-       <h2>Товаров нет!</h2>
+       <h2>Товара нет!</h2>
    {% endif %}
 {% endblock content %}
 

@@ -1,13 +1,17 @@
 <!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
 {% extends 'flatpages/default.html' %}
 
+<!--Подключаем фильтры из news/templatetags/custom_filters.py-->
+{% load custom_filters %}
+
 {% block title %} Post {% endblock title %}
 
 {% block content %}
    <h1> Все новости </h1>
    <!-- Если в переменной text будет None,
-   то выведется указанный в фильтре текст -->
-   <h3> {{ all_news }} </h3>
+   то выведется указанный в фильтре текст
+   # Количество всех записей text|length -->
+   <h3> {{ text|length }} </h3>
 
    <hr>
    {% if text %}
@@ -23,6 +27,8 @@
                <td>{{ t.title }}</td>
                <td>{{ t.dateCreation|date:'d M Y' }}</td>
                <td>{{ t.text|truncatechars:20 }}</td> <!-- первые 20 слов текста статьи  -->
+               <td><a href='/new/{{ t.id }}'>Подробнее</a></td>
+               <td>{{ t.id|currency }}</td>
            </tr>
            {% endfor %}
        </table>

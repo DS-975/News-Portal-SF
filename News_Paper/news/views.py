@@ -32,11 +32,9 @@ class PostList(ListView):
         # чтобы на её примере рассмотреть работу ещё одного фильтра.
         context['news'] = 'Нет новостей'
 
-        # Количество всех записей
-        context['all_news'] = len(context['text'])
-
         # Вывод всего словаря context
-        pprint(context)
+        # pprint(context)
+
         return context
 
 
