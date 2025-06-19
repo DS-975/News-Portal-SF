@@ -11,7 +11,7 @@
 {% block content %}
    <!-- Выводим text, только если они есть с помощью тега if -->
    {% if text %}
-        <br><h3> {{ text.title }} </h3><br>
+        <br><h3> {{ text.title|censor }} </h3><br>
         <h3> {{ text.dateCreation|date:'d M Y' }} </h3>
         <br><hr><br>
         <h3> {{ text.text|censor }} </h3>

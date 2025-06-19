@@ -9,36 +9,58 @@
 {% block title %} Post {% endblock title %}
 
 {% block content %}
-<br><h1> Все новости - {{ text|length }}</h1> <!-- Если в переменной text будет None,
-то выведется указанный в фильтре текст
-# Количество всех записей text|length -->
+    <br><h1> Все новости - {{ text|length }}</h1> <!-- Если в переменной text будет None,
+    то выведется указанный в фильтре текст
+    # Количество всех записей text|length -->
 
+    <!-- Вот так выглядело использование переменной и фильтра -->
+    <!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
+    <!-- А вот так мы используем наш тег-->
+    <!--<h3>{% current_time '%d %b %Y' %}</h3>-->
+    <br><h3>{{ time_now|date:'d M Y' }}</h3><br>
 
-<!-- Вот так выглядело использование переменной и фильтра -->
-<!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
-<!-- А вот так мы используем наш тег-->
-<!--<h3>{% current_time '%d %b %Y' %}</h3>-->
-<br><h3>{{ time_now|date:'d M Y' }}</h3><br>
+    <hr><br>
+    {% if text %}
+    <table>
+        <tr>
+            <td> Заголовок</td>
+            <td> Дата публикации</td>
+            <td> Текст статьи</td>
+        </tr>
 
-<hr><br>
-{% if text %}
-<table>
-    <tr>
-        <td> Заголовок</td>
-        <td> Дата публикации</td>
-        <td> Текст статьи</td>
-    </tr>
+        {% for t in text %}
+        <tr>
+            <td>{{ t.title|censor }}</td>
+            <td>{{ t.dateCreation|date:'d M Y' }}</td>
+            <td>{{ t.text|truncatechars:20|censor }}</td> <!-- первые 20 слов текста статьи  -->
+            <td><a href='/news/{{ t.id }}'>Подробнее</a></td>
+        </tr>
+        {% endfor %}
+        </table><br><hr>
+    {% else %}
+    <h2>Новостей нет!</h2>
+    {% endif %}
 
-    {% for t in text %}
-    <tr>
-        <td>{{ t.title|censor }}</td>
-        <td>{{ t.dateCreation|date:'d M Y' }}</td>
-        <td>{{ t.text|truncatechars:20|censor }}</td> <!-- первые 20 слов текста статьи  -->
-        <td><a href='/news/{{ t.id }}'>Подробнее</a></td>
-    </tr>
-    {% endfor %}
-</table><br><hr>
-{% else %}
-<h2>Новостей нет!</h2>
-{% endif %}
+    {# Добавляем пагинацию на страницу #}
+
+    {# Информация о предыдущих страницах #}
+    {% if page_obj.has_previous %}
+        <a href="?page=1"> 1 </a>
+        {% if page_obj.previous_page_number != 1 %}
+             ___
+        <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+    {% endif %}
+
+    {# Информация о текущей странице #}
+    {{ page_obj.number }}
+
+    {# Информация о следующих страницах #}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+        {% if paginator.num_pages != page_obj.next_page_number %}
+             ___
+        <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+        {% endif %}
+    {% endif %}
 {% endblock content %}
