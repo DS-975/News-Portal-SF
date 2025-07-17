@@ -1,0 +1,129 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+<!--Подключаем фильтров-->
+{% load custom_filters %}
+{% load custom_tags %}
+{% load custom_censor %}
+
+{% block title %} Post {% endblock title %}
+
+{% block content %}
+    <br><h1> Все новости - {{text|length}}</h1> <!-- Если в переменной text будет None,
+    то выведется указанный в фильтре текст
+    # Количество всех записей text|length -->
+
+    <!-- Вот так выглядело использование переменной и фильтра -->
+    <!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
+    <!-- А вот так мы используем наш тег-->
+    <!--<h3>{% current_time '%d %b %Y' %}</h3>-->
+
+    <!-- Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе -->
+
+    <form method="get">
+    <div style="text-align: center;">
+        <p>&nbsp;</p>
+        <label>Заголовок содержит:</label> {{ filterset.form.title }}
+    </div>
+
+    <div>&nbsp;</div>
+
+    <div>
+        <table style="margin-left: auto; margin-right: auto;">
+            <tbody>
+                <tr>
+                    <td>
+                        <div><label>От даты:</label> {{ filterset.form.start_date }}  &nbsp;&nbsp;</div>
+                    </td>
+                    <td>
+                        <div><label>До даты:</label> {{ filterset.form.end_date }}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+        <p>&nbsp;</p>
+    <button class="btn btn-primary" type="submit">Найти</button> <a class="btn btn-secondary" href="?">Сбросить</a></form>
+
+<!--    <form action="" method="get">-->
+<!--       {{ filterset.form.as_p }}-->
+<!--       <input type="submit" value="Найти" />-->
+<!--    </form>-->
+
+    <br><h3>{{ time_now|date:'d M Y' }}</h3><br>
+
+    <hr><br>
+    {% if text %}
+        <table>
+            <tr>
+                <td> Заголовок</td>
+                <td> Дата публикации</td>
+                <td> Текст статьи</td>
+            </tr>
+
+            {% for t in text %}
+            <tr>
+                <td>{{ t.title|censor }}</td>
+                <td>{{ t.dateCreation|date:'d M Y' }}</td>
+                <td>{{ t.text|truncatechars:20|censor }}</td> <!-- первые 20 слов текста статьи  -->
+                <td><a href='/news/{{ t.id }}'>Подробнее</a></td>
+            </tr>
+            {% endfor %}
+        </table><br><hr>
+    {% else %}
+        <h2>Новостей нет!</h2>
+    {% endif %}
+
+<!--    {# Добавляем пагинацию на страницу #}-->
+<!--        {# Информация о предыдущих страницах #}-->
+<!--            {% if page_obj.has_previous %}-->
+<!--                <a href="?page=1"> 1 </a>-->
+<!--                {% if page_obj.previous_page_number != 1 %}-->
+<!--                     ___-->
+<!--                <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>-->
+<!--                {% endif %}-->
+<!--            {% endif %}-->
+
+<!--        {# Информация о текущей странице #}-->
+<!--            {{ page_obj.number }}-->
+
+<!--        {# Информация о следующих страницах #}-->
+<!--            {% if page_obj.has_next %}-->
+<!--                <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>-->
+<!--                {% if paginator.num_pages != page_obj.next_page_number %}-->
+<!--                     ___-->
+<!--                <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>-->
+<!--                {% endif %}-->
+<!--            {% endif %}-->
+
+<!--        {# Разберёмся, на каком объекте из контекста теперь построен весь наш вывод товаров. #}-->
+<!--            {# page_obj — это объект, в котором содержится информация о текущей странице: #}-->
+<!--            {# В page_obj мы имеем доступ к следующим переменным: #}-->
+<!--            {# has_previous — существует ли предыдущая страница; #}-->
+<!--            {# previous_page_number — номер предыдущей страницы; #}-->
+<!--            {# number — номер текущей страницы; #}-->
+<!--            {# has_next — существует ли следующая страница; #}-->
+<!--            {# next_page_number — номер следующей страницы; #}-->
+<!--            {# paginator.num_pages — объект paginator содержит информацию о количестве страниц в переменной num_pages. #}-->
+
+<!--    {% if page_obj.has_previous %}-->
+<!--       {# Для каждой ссылки пагинации указываем обработку через новый тег #}-->
+<!--       <a href="?{% url_replace page=1 %}">1</a>-->
+<!--       {% if page_obj.previous_page_number != 1 %}-->
+<!--           ...-->
+<!--           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>-->
+<!--       {% endif %}-->
+<!--   {% endif %}-->
+
+<!--   {{ page_obj.number }}-->
+
+<!--   {% if page_obj.has_next %}-->
+<!--       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>-->
+<!--       {% if paginator.num_pages != page_obj.next_page_number %}-->
+<!--           ...-->
+<!--           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>-->
+<!--       {% endif %}-->
+<!--   {% endif %}-->
+
+
+{% endblock content %}

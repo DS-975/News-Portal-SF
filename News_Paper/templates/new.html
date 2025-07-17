@@ -1,0 +1,24 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+<!--Подключаем фильтров-->
+{% load custom_censor %}
+
+<!-- Название у нас будет Product -->
+{% block title %} Post {% endblock title %}
+<!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
+
+{% block content %}
+   <!-- Выводим text, только если они есть с помощью тега if -->
+   {% if text %}
+        <br><h3> {{ text.title|censor }} </h3><br>
+        <h3> {{ text.dateCreation|date:'d M Y' }} </h3>
+        <br><hr><br>
+        <h3> {{ text.text|censor }} </h3>
+        <br><hr>
+   {% else %}
+       <!-- Если новостей нет, говорим, что товаров нет) -->
+       <h2>Товара нет!</h2>
+   {% endif %}
+{% endblock content %}
+

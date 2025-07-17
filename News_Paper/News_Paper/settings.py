@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sites', # для site в файле prodject/prodject/urls.py
     'django.contrib.flatpages', # для встроенного приложения flatpages применения стилей
 
-    'news'
+    'news',
+    'django_filters', # <------- Фильтр для поиска по странице
 ]
 
 MIDDLEWARE = [

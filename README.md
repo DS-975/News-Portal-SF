@@ -20,9 +20,9 @@
     py manage.py startapp simpleapp
 
 
-### Базовая настройка Django flatpages ссылки
+## Базовая настройка Django flatpages ссылки
 - - -
-## В файле prodject/prodject/settings.py :
+### В файле prodject/prodject/settings.py :
 - - -
     SITE_ID = 1 # для корректной работы 'django.contrib.sites'
 - - -
@@ -54,7 +54,7 @@
         В список urlpatterns добавляем строку :
         path('pages/', include('django.contrib.flatpages.urls')), # для стилей
 - - - 
-## В файле django_views\prodject\prodject\urls.py
+### В файле django_views\prodject\prodject\urls.py
     from django.contrib import admin
     from django.urls import path, include
     
@@ -72,7 +72,7 @@
 - - - 
 - - -
 - - -
-### Базовая настройка для стилей
+## Базовая настройка для стилей
 - - -
 ### В директории с manage.py создаём папку static
 ![img.png](img/img.png)
@@ -337,6 +337,230 @@ from django.core.validators import MinValueValidator
 
 
 
+- - -
+
+### Для фильтрации данных мы будем использовать сторонний Python-пакет из PyPi – django-filter.
+- - -
+#### Установим пакет с помощью следующей команды:
+      python -m pip install django-filter
+- - -
+#### Добавим ‘django_filters’ в INSTALLED_APPS в настройках(News_Paper/News_Paper/settings.py), чтобы получить доступ к фильтрам в приложении.
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+    
+        'django.contrib.sites', # для site в файле prodject/prodject/urls.py
+        'django.contrib.flatpages', # для встроенного приложения flatpages применения стилей
+    
+        'news',
+    
+        'simpleapp',
+        'django_filters', # <------- Фильтр для поиска по странице
+    ]
+- - -
+#### Теперь надо создать файл filters.py в директории news/ в той же папке, где лежат наши модели и всё остальное. Нас никто не заставляет писать фильтры именно в файле filters.py, но, как мы и отмечали ранее, порядок в коде лучше соблюдать с самого начала, иначе при увеличении кодовой базы начнём путаться, что и где лежит.
+
+##### News_Paper/news/templatetags/filters.py
+
+    from django_filters import FilterSet
+    from .models import Product
+    
+    # Создаем свой набор фильтров для модели Product.
+    # FilterSet, который мы наследуем,
+    # должен чем-то напомнить знакомые вам Django дженерики.
+    class ProductFilter(FilterSet):
+         class Meta:
+             # В Meta классе мы должны указать Django модель,
+             # в которой будем фильтровать записи.
+             model = Product
+             # В fields мы описываем по каким полям модели
+             # будет производиться фильтрация.
+             fields = {
+                 # поиск по названию
+                 'name': ['icontains'],
+                 # количество товаров должно быть больше или равно
+                 'quantity': ['gt'],
+                 'price': [
+                     'lt',  # цена должна быть меньше или равна указанной
+                     'gt',  # цена должна быть больше или равна указанной
+                 ],
+             }
+##### Мы создали свой класс, в котором указали, как можно фильтровать данные модели Product.
+
+##### В fields содержится словарь настройки самих фильтров. Ключами являются названия полей модели, а значениями выступают списки операторов фильтрации. Именно те, которые мы можем указать при составлении запроса. Например, Product.objects.filter(price__gt=10).
+
+##### Список операторов можно посмотреть по ссылке(https://docs.djangoproject.com/en/4.0/ref/models/querysets/#field-lookups).
+
+- - -
+
+#### Теперь созданный нами класс нужно использовать в представлении (view) для фильтрации списка товаров.
+
+##### News_Paper/news/views.py
+
+    from django.views.generic import ListView, DetailView
+    from .models import Product
+    from .filters import ProductFilter
+    
+    
+    class ProductsList(ListView):
+       model = Product
+       ordering = 'name'
+       template_name = 'products.html'
+       context_object_name = 'products'
+       paginate_by = 2
+    
+       # Переопределяем функцию получения списка товаров
+       def get_queryset(self):
+           # Получаем обычный запрос
+           queryset = super().get_queryset()
+           # Используем наш класс фильтрации.
+           # self.request.GET содержит объект QueryDict, который мы рассматривали
+           # в этом юните ранее.
+           # Сохраняем нашу фильтрацию в объекте класса,
+           # чтобы потом добавить в контекст и использовать в шаблоне.
+           self.filterset = ProductFilter(self.request.GET, queryset)
+           # Возвращаем из функции отфильтрованный список товаров
+           return self.filterset.qs
+    
+       def get_context_data(self, **kwargs):
+           context = super().get_context_data(**kwargs)
+           # Добавляем в контекст объект фильтрации.
+           context['filterset'] = self.filterset
+           return context
+
+
+    class ProductDetail(DetailView):
+       model = Product
+       template_name = 'product.html'
+       context_object_name = 'product'
+
+- - - 
+
+#### И последнее, что от нас требуется — добавить в HTML-поля для каждого фильтра, который мы объявили. Не будем же мы пользователя заставлять указывать фильтры прямо в строке браузера.
+
+##### К счастью, django-filter может сгенерировать за нас все поля ввода. Нам нужно только использовать переменную, которую мы добавили в контекст (filterset), в шаблоне и добавить кнопку отправки формы.
+
+##### News_Paper/templates/news.html
+
+    <!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+    {% extends 'flatpages/default.html' %}
+    
+    <!--Подключаем фильтров-->
+    {% load custom_filters %}
+    {% load custom_tags %}
+    {% load custom_censor %}
+    
+    {% block title %} Post {% endblock title %}
+    
+    {% block content %}
+        <br><h1> Все новости - {{ text|length }}</h1> <!-- Если в переменной text будет None,
+        то выведется указанный в фильтре текст
+        # Количество всех записей text|length -->
+    
+        <!-- Вот так выглядело использование переменной и фильтра -->
+        <!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
+        <!-- А вот так мы используем наш тег-->
+        <!--<h3>{% current_time '%d %b %Y' %}</h3>-->
+    
+        {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+    
+        <form action="" method="get">
+           {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+           {{ filterset.form.as_p }}
+           {# Добавим кнопку отправки данных формы #}
+           <input type="submit" value="Найти" />
+        </form>
+    
+        <br><h3>{{ time_now|date:'d M Y' }}</h3><br>
+    
+        <hr><br>
+        {% if text %}
+        <table>
+            <tr>
+                <td> Заголовок</td>
+                <td> Дата публикации</td>
+                <td> Текст статьи</td>
+            </tr>
+    
+            {% for t in text %}
+            <tr>
+                <td>{{ t.title|censor }}</td>
+                <td>{{ t.dateCreation|date:'d M Y' }}</td>
+                <td>{{ t.text|truncatechars:20|censor }}</td> <!-- первые 20 слов текста статьи  -->
+                <td><a href='/news/{{ t.id }}'>Подробнее</a></td>
+            </tr>
+            {% endfor %}
+            </table><br><hr>
+        {% else %}
+        <h2>Новостей нет!</h2>
+        {% endif %}
+    
+        {# Добавляем пагинацию на страницу #}
+            {# Информация о предыдущих страницах #}
+                {% if page_obj.has_previous %}
+                    <a href="?page=1"> 1 </a>
+                    {% if page_obj.previous_page_number != 1 %}
+                         ___
+                    <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+                    {% endif %}
+                {% endif %}
+    
+            {# Информация о текущей странице #}
+                {{ page_obj.number }}
+    
+            {# Информация о следующих страницах #}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+                    {% if paginator.num_pages != page_obj.next_page_number %}
+                         ___
+                    <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+                    {% endif %}
+                {% endif %}
+    
+            {# Разберёмся, на каком объекте из контекста теперь построен весь наш вывод товаров. #}
+                {# page_obj — это объект, в котором содержится информация о текущей странице: #}
+                {# В page_obj мы имеем доступ к следующим переменным: #}
+                {# has_previous — существует ли предыдущая страница; #}
+                {# previous_page_number — номер предыдущей страницы; #}
+                {# number — номер текущей страницы; #}
+                {# has_next — существует ли следующая страница; #}
+                {# next_page_number — номер следующей страницы; #}
+                {# paginator.num_pages — объект paginator содержит информацию о количестве страниц в переменной num_pages. #}
+    {% endblock content %}
+
+- - -
+
+#### version :
+
+    0.0.1 - Добавил фильтры на страницу /news/ (News_Paper/news/templatetags/filters.py),
+            теперь можно фильтровать список данных : по названию заголовка и по датам от и до определённой даты
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -375,5 +599,5 @@ git init
 git add README.md
 git commit -m "first commit"
 git branch -M master
-git remote add origin https://github.com/DS-975/django_views.git
+git remote add origin https://github.com/DS-975/News-Portal-SF.git
 git push -u origin master
