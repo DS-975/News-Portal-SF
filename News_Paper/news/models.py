@@ -1,4 +1,4 @@
-from tkinter.constants import CASCADE
+
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -37,9 +37,6 @@ class PostTitle(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
-    print(f'post = {post}')
-    print(f'title = {title}')
-
     class Meta:
         unique_together = ('post', 'title')  # Уникальная связь
 
@@ -47,7 +44,8 @@ class PostTitle(models.Model):
 
 class Post(models.Model):
     """Основная модель поста"""
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    #author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, blank=True)
 
     NEWS = 'NW'
     ARTICLE = 'AR'
@@ -59,9 +57,11 @@ class Post(models.Model):
     dateCreation = models.DateTimeField(auto_now_add=True)
     postCategory = models.ManyToManyField(Category, through='PostCategory')
 
-    title = models.CharField(max_length=128)
+    title = models.CharField(max_length=128, unique=True)
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
+
+
 
     titles = models.ManyToManyField(
         Title,

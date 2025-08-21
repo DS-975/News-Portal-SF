@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     'news',
     'django_filters', # <------- Фильтр для поиска по странице
+
 ]
 
 MIDDLEWARE = [

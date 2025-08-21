@@ -9,7 +9,7 @@
 {% block title %} Post {% endblock title %}
 
 {% block content %}
-    <br><h1> Все новости - {{text|length}}</h1> <!-- Если в переменной text будет None,
+    <br><h1 class="text-center">Все новости - {{text|length}}</h1> <!-- Если в переменной text будет None,
     то выведется указанный в фильтре текст
     # Количество всех записей text|length -->
 
@@ -49,7 +49,10 @@
         </table>
     </div>
         <p>&nbsp;</p>
-    <button class="btn btn-primary" type="submit">Найти</button> <a class="btn btn-secondary" href="?">Сбросить</a></form>
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Найти</button>
+        <a class="btn btn-secondary" href="?">Сбросить</a>
+    </div>
 
 <!--    <form action="" method="get">-->
 <!--       {{ filterset.form.as_p }}-->

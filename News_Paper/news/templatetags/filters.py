@@ -2,7 +2,7 @@ from django_filters import FilterSet, CharFilter, DateFilter, ModelChoiceFilter
 from django import forms
 from ..models import Post, Title, PostTitle
 
-class ProductFilter(FilterSet):
+class PostFilter(FilterSet):
     # Фильтр по текстовому поиску
     title_search = CharFilter(
         field_name='title',
