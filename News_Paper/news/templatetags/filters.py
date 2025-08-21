@@ -1,21 +1,25 @@
-from django_filters import FilterSet, CharFilter, DateFilter
+from django_filters import FilterSet, CharFilter, DateFilter, ModelChoiceFilter
 from django import forms
-from ..models import Post
+from ..models import Post, Title, PostTitle
 
-# Создаем свой набор фильтров для модели Product.
-# FilterSet, который мы наследуем,
-# должен чем-то напомнить знакомые вам Django дженерики.
 class ProductFilter(FilterSet):
-
-    # Фильтр по Заголовку
-    title = CharFilter(
+    # Фильтр по текстовому поиску
+    title_search = CharFilter(
         field_name='title',
         lookup_expr='icontains',
-        label='Заголовок содержит',
-        widget=forms.TextInput(attrs={'placeholder': 'Поиск по названию'})
+        label='Поиск по заголовку',
+        widget=forms.TextInput(attrs={'placeholder': 'Введите часть заголовка'})
     )
 
-    # Фильтр "v"
+    # Фильтр по выбору из списка заголовков (теперь по связи с Title)
+    title_list = ModelChoiceFilter(
+        field_name='title',  # Фильтруем по названию связанного заголовка
+        queryset=Post.objects.all(),
+        label='Выберите из списка заголовков',
+        empty_label='Все заголовки'
+    )
+
+    # Фильтр "От даты"
     start_date = DateFilter(
         field_name='dateCreation',
         lookup_expr='gte',
@@ -33,15 +37,12 @@ class ProductFilter(FilterSet):
         method='filter_end_date'
     )
 
-    class Meta:
-        # В Meta классе мы должны указать Django модель,
-        # в которой будем фильтровать записи.
-        model = Post
-        # В fields мы описываем по каким полям модели
-        # будет производиться фильтрация.
-        fields = ['title']
 
-    # Кастомные методы для правильной фильтрации дат
+
+    class Meta:
+        model = Post
+        fields = []  # Оставляем пустым, так как все фильтры объявлены явно
+
     def filter_start_date(self, queryset, name, value):
         return queryset.filter(dateCreation__date__gte=value)
 

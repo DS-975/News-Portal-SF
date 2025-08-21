@@ -1,3 +1,5 @@
+from tkinter.constants import CASCADE
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
@@ -24,7 +26,27 @@ class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
 
+class Title(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name  # Это должно возвращать название заголовка
+
+class PostTitle(models.Model):
+    """Промежуточная модель для связи Post и Title"""
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    print(f'post = {post}')
+    print(f'title = {title}')
+
+    class Meta:
+        unique_together = ('post', 'title')  # Уникальная связь
+
+
+
 class Post(models.Model):
+    """Основная модель поста"""
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     NEWS = 'NW'
@@ -41,6 +63,16 @@ class Post(models.Model):
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
 
+    titles = models.ManyToManyField(
+        Title,
+        through='PostTitle',
+        related_name='posts',
+        blank=True
+    )
+
+    def __str__(self):
+        return self.title  # Это будет отображать заголовок поста вместо "Post object (id)"
+
     def like(self):
         self.rating += 1
         self.save()
@@ -51,6 +83,8 @@ class Post(models.Model):
 
     def preview(self):
         return self.text[0:123] + '...'
+
+
 
 
 class PostCategory(models.Model):

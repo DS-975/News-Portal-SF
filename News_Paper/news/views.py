@@ -1,5 +1,6 @@
 # Импортируем класс, который говорит нам о том,
 # что в этом представлении мы будем выводить список объектов из БД
+from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from .models import Post
 from .templatetags.filters import ProductFilter
@@ -18,7 +19,7 @@ class PostList(ListView):
     # Это имя списка, в котором будут лежать все объекты.
     # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'text'
-    paginate_by = 5  # вот так мы можем указать количество записей на странице
+    paginate_by = 3  # вот так мы можем указать количество записей на странице
 
     # Переопределяем функцию получения списка товаров
     def get_queryset(self):
@@ -55,6 +56,7 @@ class PostList(ListView):
         return context
 
 
+
 # Вот так мы можем использовать дженерик ListView для вывода списка товаров:
 #
 # Создаем свой класс, который наследуется от ListView.
@@ -70,6 +72,5 @@ class PostDetail(DetailView):
     template_name = 'new.html'
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'text'
-
 
 
