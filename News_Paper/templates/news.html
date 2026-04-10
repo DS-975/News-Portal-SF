@@ -1,75 +1,81 @@
-{% extends 'flatpages/default.html' %} {% load custom_filters %} {% load
-custom_tags %} {% load custom_censor %} {% block title %}Новости{% endblock
-title %} {% block content %} <br />
-<h1 class="text-center">Все новости - {{ text|length }}</h1>
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load custom_censor %}
+
+{% block title %}Новости{% endblock title %}
+
+{% block content %}
+<br><h1 class="text-center">Все новости - {{ text|length }}</h1>
 
 <form method="get">
-  <div style="text-align: center">
-    <p>Заголовок содержит</p>
-    <div>&nbsp;</div>
-    <label>Вписать:</label> {{ filterset.form.title }} <label>Автор:</label> {{
-    filterset.form.author }} <label>Позже даты:</label> {{
-    filterset.form.date_after }}
-  </div>
-  <div class="text-center">
-    <button class="btn btn-primary" type="submit">Найти</button>
-    <a class="btn btn-secondary" href="?">Сбросить</a>
-  </div>
+    <div style="text-align: center;">
+        <p>Фильтры:</p>
+        <div>&nbsp;</div>
+        <label>Название:</label> {{ filterset.form.title }}
+        <label>Автор:</label> {{ filterset.form.author }}
+        <label>Позже даты:</label> {{ filterset.form.date_after }}
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Найти</button>
+        <a class="btn btn-secondary" href="?">Сбросить</a>
+    </div>
 </form>
 
-<br />
-<h3>{{ time_now|date:'d M Y' }}</h3>
-<br />
-<hr />
-<br />
+<br><h3>{{ time_now|date:'d M Y' }}</h3><br>
+<hr><br>
 
 {% if text %}
 <table>
-  <tr>
-    <th>Заголовок</th>
-    <th>Дата публикации</th>
-    <th>Текст статьи</th>
-  </tr>
-  {% for t in text %}
-  <tr>
-    <td>{{ t.title|truncatechars:25|censor }}</td>
-    <td>{{ t.dateCreation|date:'d M Y' }}</td>
-    <td>{{ t.text|truncatechars:20|censor }}</td>
-    <td><a href="/news/{{ t.id }}">Подробнее</a></td>
-  </tr>
-  {% endfor %}
+    <thead>
+        <tr>
+            <th>Заголовок</th>
+            <th>Дата публикации</th>
+            <th>Текст статьи</th>
+            <th>Действие</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in text %}
+        <tr>
+            <td>{{ t.title|truncatechars:25|censor }}</td>
+            <td>{{ t.dateCreation|date:'d M Y' }}</td>
+            <td>{{ t.text|truncatechars:20|censor }}</td>
+            <td><a href='/news/{{ t.id }}'>Подробнее</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
-<br />
-<hr />
+<br><hr>
 
 <!-- ПАГИНАЦИЯ -->
-<div style="text-align: center; margin-top: 20px">
-  {% if page_obj.has_previous %}
-  <a href="?page=1" class="btn btn-secondary">Первая</a>
-  <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary"
-    >← Назад</a
-  >
-  {% else %}
-  <button class="btn btn-secondary" disabled>Первая</button>
-  <button class="btn btn-secondary" disabled>← Назад</button>
-  {% endif %} {% for num in page_obj.paginator.page_range %} {% if
-  page_obj.number == num %}
-  <strong class="btn btn-primary disabled">{{ num }}</strong>
-  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-  <a href="?page={{ num }}" class="btn btn-secondary">{{ num }}</a>
-  {% endif %} {% endfor %} {% if page_obj.has_next %}
-  <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary"
-    >Вперед →</a
-  >
-  <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary"
-    >Последняя</a
-  >
-  {% else %}
-  <button class="btn btn-secondary" disabled>Вперед →</button>
-  <button class="btn btn-secondary" disabled>Последняя</button>
-  {% endif %}
+<div style="text-align: center; margin-top: 20px;">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-secondary">Первая</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">← Назад</a>
+    {% else %}
+        <button class="btn btn-secondary" disabled>Первая</button>
+        <button class="btn btn-secondary" disabled>← Назад</button>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <strong class="btn btn-primary disabled">{{ num }}</strong>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" class="btn btn-secondary">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">Вперед →</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary">Последняя</a>
+    {% else %}
+        <button class="btn btn-secondary" disabled>Вперед →</button>
+        <button class="btn btn-secondary" disabled>Последняя</button>
+    {% endif %}
 </div>
 
 {% else %}
 <h2>Новостей нет!</h2>
-{% endif %} {% endblock content %}
+{% endif %}
+{% endblock content %}
