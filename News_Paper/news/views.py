@@ -1,112 +1,104 @@
-# Импортируем класс, который говорит нам о том,
-# что в этом представлении мы будем выводить список объектов из БД
-
-from django.http import HttpResponseRedirect
-
+# Импортируем классы для представлений
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from datetime import datetime
+
+# Импортируем модели, фильтры и формы
 from .models import Post, Author
 from .templatetags.filters import PostFilter
 from .templatetags.forms import PostForm
-from datetime import datetime
-
-from django.contrib.auth.decorators import login_required
-
-from django.contrib import messages
-
 
 
 class PostList(ListView):
-    # Указываем модель, объекты которой мы будем выводить
+    """Список всех новостей и статей с пагинацией"""
     model = Post
-    # Поле, которое будет использоваться для сортировки объектов
-    ordering = '-dateCreation'  # Сортировка по убыванию даты
-    # Указываем имя шаблона, в котором будут все инструкции о том,
-    # как именно пользователю должны быть показаны наши объекты
+    ordering = '-dateCreation'
     template_name = 'news.html'
-    # Это имя списка, в котором будут лежать все объекты.
-    # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'text'
-    paginate_by = 10  # вот так мы можем указать количество записей на странице
+    paginate_by = 10
 
-    # Переопределяем функцию получения списка товаров
     def get_queryset(self):
-        # Получаем обычный запрос
         queryset = super().get_queryset()
-        # Используем наш клас фильтрации
-        # self.request.GET содержит объект QueryDict.
-        # Сохраняем нашу фильтрацию в области класса,
-        # чтобы потом добавить в контекст и использовать в шаблоне.
         self.filterset = PostFilter(self.request.GET, queryset)
-        # С помощью super() мы обращаемся к родительским классам
-        # и вызываем у них метод get_context_data с теми же аргументами,
-        # что и были переданы нам.
         return self.filterset.qs
 
-    # Метод get_context_data позволяет нам изменить набор данных,
-    # который будет передан в шаблон.
     def get_context_data(self, **kwargs):
-        # В ответе мы должны получить словарь.
         context = super().get_context_data(**kwargs)
-
-        # К словарю добавим текущую дату в ключ 'time_now'.
         context['time_now'] = datetime.now()
-
-        # # Добавим ещё одну пустую переменную,
-        # # чтобы на её примере рассмотреть работу ещё одного фильтра.
-        # context['filterset'] = self.filterset
-        # context['text'] = self.news_list
-
         context['filterset'] = self.filterset
-
-        # Вывод всего словаря context
-        # pprint(context)
         return context
 
 
+class SearchList(ListView):
+    """Страница поиска с фильтрацией по названию, автору и дате"""
+    model = Post
+    template_name = 'search.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    ordering = '-dateCreation'
 
-# Вот так мы можем использовать дженерик ListView для вывода списка товаров:
-#
-# Создаем свой класс, который наследуется от ListView.
-# Указываем модель, из которой будем выводить данные.
-# Указываем поле сортировки данных модели (необязательно).
-# Записываем название шаблона.
-# Объявляем, как хотим назвать переменную в шаблоне.
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        return context
+
 
 class PostDetail(DetailView):
-    # Модель всё та же, но мы хотим получать информацию по отдельному товару
+    """Детальная страница поста"""
     model = Post
-    # Используем другой шаблон — new.html
     template_name = 'new.html'
-    # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'text'
+
+
+class PostUpdate(UpdateView):
+    """Редактирование поста"""
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit.html'
+    success_url = reverse_lazy('news_list')
+
+
+class PostDelete(DeleteView):
+    """Удаление поста"""
+    model = Post
+    template_name = 'post_confirm_delete.html'
+    success_url = reverse_lazy('news_list')
 
 
 @login_required
 def create_post(request, post_type):
+    """Создание новости или статьи"""
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
             # Проверяем, есть ли у пользователя Author
             if not hasattr(request.user, 'author'):
-                # Создаем Author для пользователя
                 author = Author.objects.create(authorUser=request.user)
             else:
                 author = request.user.author
 
             post = form.save(commit=False)
             post.author = author
-            post.categoryType = post_type  # Устанавливаем тип публикации
+            post.categoryType = post_type
             post.save()
 
-            message = 'Новость успешно создана!' if post_type == 'NW' else 'Статья успешно создана!'
-            messages.success(request, message)
+            if post_type == 'NW':
+                messages.success(request, 'Новость успешно создана!')
+            else:
+                messages.success(request, 'Статья успешно создана!')
             return redirect('/news/')
         else:
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
         form = PostForm()
 
-    # Выбираем правильный шаблон в зависимости от типа
     template = 'post_edit_NW.html' if post_type == 'NW' else 'post_edit_AR.html'
     return render(request, template, {'form': form})

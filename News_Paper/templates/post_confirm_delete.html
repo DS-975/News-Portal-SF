@@ -1,0 +1,11 @@
+{% extends 'flatpages/default.html' %} {% block content %}
+<div class="container mt-4">
+  <h1>Удаление публикации</h1>
+  <p>Вы уверены, что хотите удалить "{{ post.title }}"?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <a href="/news/" class="btn btn-secondary">Отмена</a>
+  </form>
+</div>
+{% endblock %}

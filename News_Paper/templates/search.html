@@ -1,0 +1,78 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load custom_censor %}
+
+{% block title %}Поиск публикаций{% endblock title %}
+
+{% block content %}
+<h1 class="mb-4">Поиск новостей и статей</h1>
+
+<form method="get" class="mb-4 p-3 border rounded">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">{{ filterset.form.title.label }}</label>
+            {{ filterset.form.title }}
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">{{ filterset.form.author.label }}</label>
+            {{ filterset.form.author }}
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">{{ filterset.form.date_after.label }}</label>
+            {{ filterset.form.date_after }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Найти</button>
+    <a href="{% url 'search' %}" class="btn btn-secondary">Сбросить</a>
+</form>
+
+{% if posts %}
+<div class="mb-3">Найдено публикаций: {{ posts|length }}</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Заголовок</th>
+            <th>Автор</th>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Просмотр</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in posts %}
+        <tr>
+            <td><a href="/news/{{ post.pk }}/">{{ post.title|censor|truncatechars:50 }}</a></td>
+            <td>{{ post.author.authorUser.username|default:"Не указан" }}</td>
+            <td>{{ post.dateCreation|date:"d.m.Y H:i" }}</td>
+            <td>{{ post.get_categoryType_display }}</td>
+            <td><a href="/news/{{ post.pk }}/" class="btn btn-sm btn-info">Читать</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- ПАГИНАЦИЯ -->
+<div class="pagination mt-3">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-sm btn-outline-primary">Первая</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-primary">←</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <strong class="btn btn-sm btn-primary disabled">{{ num }}</strong>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" class="btn btn-sm btn-outline-primary">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-primary">→</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">Последняя</a>
+    {% endif %}
+</div>
+{% else %}
+<div class="alert alert-info">Ничего не найдено. Попробуйте изменить критерии поиска.</div>
+{% endif %}
+{% endblock content %}
