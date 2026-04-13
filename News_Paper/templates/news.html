@@ -3,45 +3,60 @@
 {% load custom_tags %}
 {% load custom_censor %}
 
-{% block title %}Новости{% endblock title %}
+{% block title %}Новости{% endblock %}
 
 {% block content %}
-<br><h1 class="text-center">Все новости - {{ text|length }}</h1>
-
-<form method="get">
-    <div style="text-align: center;">
-        <p>Фильтры:</p>
-        <div>&nbsp;</div>
-        <label>Название:</label> {{ filterset.form.title }}
-        <label>Автор:</label> {{ filterset.form.author }}
-        <label>Позже даты:</label> {{ filterset.form.date_after }}
+<br>
+<div class="d-flex justify-content-between align-items-center">
+    <!-- <h1 style="color: #fff;">Все новости - {{ text|length }}</h1> -->
+    <div>
+        <a href="/news/create/" class="btn btn-success" >➕ Создать новость</a>
+        <a href="/news/articles/create/" class="btn btn-info" style="color: #000;">📝 Создать статью</a>
     </div>
-    <div class="text-center">
+</div>
+
+<form method="get" class="mt-3 mb-3 p-3 border rounded" style="background-color: #000;">
+    <div class="row">
+        <div class="col-md-4">
+            <label style="color: #000;">Название:</label> {{ filterset.form.title }}
+        </div>
+        <div class="col-md-4">
+            <label style="color: #000;">Автор:</label> {{ filterset.form.author }}
+        </div>
+        <div class="col-md-4">
+            <label style="color: #000;">Позже даты:</label> {{ filterset.form.date_after }}
+        </div>
+    </div>
+    <div class="mt-2">
         <button class="btn btn-primary" type="submit">Найти</button>
         <a class="btn btn-secondary" href="?">Сбросить</a>
     </div>
 </form>
 
-<br><h3>{{ time_now|date:'d M Y' }}</h3><br>
-<hr><br>
+<!-- <h3 style="color: #333;">{{ time_now|date:'d M Y' }}</h3> -->
+<hr>
 
 {% if text %}
-<table>
-    <thead>
+<table class="table table-bordered table-striped" style="background-color: #000; color: #fff;">
+    <thead style="background-color: #fff; color: #fff;">
         <tr>
-            <th>Заголовок</th>
-            <th>Дата публикации</th>
-            <th>Текст статьи</th>
-            <th>Действие</th>
+            <th style="color: #333;">Заголовок</th>
+            <th style="color: #333;">Дата публикации</th>
+            <th style="color: #333;">Текст статьи</th>
+            <th style="color: #333;">Действия</th>
         </tr>
     </thead>
     <tbody>
         {% for t in text %}
-        <tr>
-            <td>{{ t.title|truncatechars:25|censor }}</td>
-            <td>{{ t.dateCreation|date:'d M Y' }}</td>
-            <td>{{ t.text|truncatechars:20|censor }}</td>
-            <td><a href='/news/{{ t.id }}'>Подробнее</a></td>
+        <tr style="background-color: #000; color: #fff;">
+            <td><a href='/news/{{ t.id }}/' style="color: #fff; text-decoration: none;">{{ t.title|truncatechars:25|censor }}</a></td>
+            <td><span style="color: #fff;">{{ t.dateCreation|date:'d M Y' }}</span></td>
+            <td><span style="color: #fff;">{{ t.text|truncatechars:20|censor }}</span></td>
+            <td>
+                <a href='/news/{{ t.id }}/' class="btn btn-sm btn-info" style="color: white;">👁️ Просмотр</a>
+                <a href='/news/{{ t.id }}/edit/' class="btn btn-sm btn-warning" style="color: #333;">✏️ Редактировать</a>
+                <a href='/news/{{ t.id }}/delete/' class="btn btn-sm btn-danger" style="color: white;">🗑️ Удалить</a>
+            </a></td>
         </tr>
         {% endfor %}
     </tbody>
@@ -76,6 +91,6 @@
 </div>
 
 {% else %}
-<h2>Новостей нет!</h2>
+<h2 style="color: #333;">Новостей нет!</h2>
 {% endif %}
-{% endblock content %}
+{% endblock %}

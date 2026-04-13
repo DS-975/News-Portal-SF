@@ -1,6 +1,6 @@
 # Импортируем классы для представлений
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -102,3 +102,58 @@ def create_post(request, post_type):
 
     template = 'post_edit_NW.html' if post_type == 'NW' else 'post_edit_AR.html'
     return render(request, template, {'form': form})
+
+
+
+
+
+
+
+    # ========== CRUD ДЛЯ НОВОСТЕЙ ==========
+class NewsCreate(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit_NW.html'
+    success_url = reverse_lazy('news_list')
+    
+    def form_valid(self, form):
+        form.instance.categoryType = 'NW'
+        return super().form_valid(form)
+
+class NewsUpdate(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit_NW.html'
+    success_url = reverse_lazy('news_list')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Новость успешно обновлена!')
+        return response
+
+class NewsDelete(DeleteView):
+    model = Post
+    template_name = 'post_confirm_delete.html'
+    success_url = reverse_lazy('news_list')
+
+# ========== CRUD ДЛЯ СТАТЕЙ ==========
+class ArticleCreate(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit_AR.html'
+    success_url = reverse_lazy('news_list')
+    
+    def form_valid(self, form):
+        form.instance.categoryType = 'AR'
+        return super().form_valid(form)
+
+class ArticleUpdate(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit_AR.html'
+    success_url = reverse_lazy('news_list')
+
+class ArticleDelete(DeleteView):
+    model = Post
+    template_name = 'post_confirm_delete.html'
+    success_url = reverse_lazy('news_list')

@@ -3,23 +3,23 @@
 {% load custom_tags %}
 {% load custom_censor %}
 
-{% block title %}Поиск публикаций{% endblock title %}
+{% block title %}Поиск публикаций{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Поиск новостей и статей</h1>
+<h1 class="mb-4" style="color: #fff;">Поиск новостей и статей</h1>
 
 <form method="get" class="mb-4 p-3 border rounded">
     <div class="row">
         <div class="col-md-4 mb-3">
-            <label class="form-label">{{ filterset.form.title.label }}</label>
+            <label class="form-label" style="color: #fff;">{{ filterset.form.title.label }}</label>
             {{ filterset.form.title }}
         </div>
         <div class="col-md-4 mb-3">
-            <label class="form-label">{{ filterset.form.author.label }}</label>
+            <label class="form-label" style="color: #fff;">{{ filterset.form.author.label }}</label>
             {{ filterset.form.author }}
         </div>
         <div class="col-md-4 mb-3">
-            <label class="form-label">{{ filterset.form.date_after.label }}</label>
+            <label class="form-label" style="color: #fff;">{{ filterset.form.date_after.label }}</label>
             {{ filterset.form.date_after }}
         </div>
     </div>
@@ -28,25 +28,29 @@
 </form>
 
 {% if posts %}
-<div class="mb-3">Найдено публикаций: {{ posts|length }}</div>
-<table class="table table-striped">
-    <thead>
+<!-- <div class="mb-3" style="color: #fff;">Найдено публикаций: {{ posts|length }}</div> -->
+<table class="table table-bordered" style="background-color: white; color: #fff;">
+    <thead style="background-color: #fff; color: #fff;">
         <tr>
-            <th>Заголовок</th>
-            <th>Автор</th>
-            <th>Дата</th>
-            <th>Тип</th>
-            <th>Просмотр</th>
+            <th style="color: #000;">Заголовок</th>
+            <th style="color: #000;">Автор</th>
+            <th style="color: #000;">Дата</th>
+            <th style="color: #000;">Тип</th>
+            <th style="color: #000;">Действия</th>
         </tr>
     </thead>
     <tbody>
         {% for post in posts %}
-        <tr>
-            <td><a href="/news/{{ post.pk }}/">{{ post.title|censor|truncatechars:50 }}</a></td>
-            <td>{{ post.author.authorUser.username|default:"Не указан" }}</td>
-            <td>{{ post.dateCreation|date:"d.m.Y H:i" }}</td>
-            <td>{{ post.get_categoryType_display }}</td>
-            <td><a href="/news/{{ post.pk }}/" class="btn btn-sm btn-info">Читать</a></td>
+        <tr style="background-color: #000; color: #fff;">
+            <td><a href="/news/{{ post.pk }}/" style="color: #0066cc; text-decoration: none;">{{ post.title|censor|truncatechars:50 }}</a></td>
+            <td><span style="color: #fff;">{{ post.author.authorUser.username|default:"Не указан" }}</span></td>
+            <td><span style="color: #fff;">{{ post.dateCreation|date:"d.m.Y H:i" }}</span></td>
+            <td><span style="color: #fff;">{{ post.get_categoryType_display }}</span></td>
+            <td>
+                <a href="/news/{{ post.pk }}/" class="btn btn-sm btn-info" style="color: white;">👁️ Просмотр</a>
+                <a href="/news/{{ post.pk }}/edit/" class="btn btn-sm btn-warning" style="color: #333;">✏️ Редактировать</a>
+                <a href="/news/{{ post.pk }}/delete/" class="btn btn-sm btn-danger" style="color: white;">🗑️ Удалить</a>
+            </a></td>
         </tr>
         {% endfor %}
     </tbody>
@@ -75,4 +79,4 @@
 {% else %}
 <div class="alert alert-info">Ничего не найдено. Попробуйте изменить критерии поиска.</div>
 {% endif %}
-{% endblock content %}
+{% endblock %}

@@ -1,16 +1,25 @@
-{% extends 'flatpages/default.html' %}
-{% load custom_censor %}
-
-{% block title %}Публикация{% endblock title %}
-
-{% block content %}
-{% if text %}
-<br><h3>{{ text.title|censor }}</h3><br>
+{% extends 'flatpages/default.html' %} {% load custom_censor %} {% block title%}
+Публикация {% endblock title %} {% block content %} {% if text %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="/news/{{ text.id }}/edit/" class="btn btn-warning me-2"
+    >✏️ Редактировать</a
+  >
+  <a href="/news/{{ text.id }}/delete/" class="btn btn-danger">🗑️ Удалить</a>
+</div>
+<br />
+<h3>{{ text.title|censor }}</h3>
+<br />
 <h3>{{ text.dateCreation|date:'d M Y' }}</h3>
-<br><hr><br>
+<br />
+<hr />
+<br />
 <h3>{{ text.text|censor }}</h3>
-<br><hr>
+<br />
+<hr />
+<div class="mt-3">
+  <a href="/news/" class="btn btn-secondary">← Назад к списку</a>
+</div>
 {% else %}
 <h2>Публикации нет!</h2>
-{% endif %}
-{% endblock content %}
+<a href="/news/" class="btn btn-secondary">← Назад к списку</a>
+{% endif %} {% endblock content %}
