@@ -1,8 +1,9 @@
 # Импортируем классы для представлений
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from datetime import datetime
 
@@ -110,50 +111,69 @@ def create_post(request, post_type):
 
 
     # ========== CRUD ДЛЯ НОВОСТЕЙ ==========
-class NewsCreate(CreateView):
+class NewsCreate(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'post_edit_NW.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' # перенапраление для неавторизованных
     
     def form_valid(self, form):
         form.instance.categoryType = 'NW'
         return super().form_valid(form)
 
-class NewsUpdate(UpdateView):
+class NewsUpdate(LoginRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'post_edit_NW.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' # перенапраление для неавторизованных
     
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(self.request, 'Новость успешно обновлена!')
         return response
 
-class NewsDelete(DeleteView):
+class NewsDelete(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_confirm_delete.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' # перенапраление для неавторизованных
 
 # ========== CRUD ДЛЯ СТАТЕЙ ==========
-class ArticleCreate(CreateView):
+class ArticleCreate(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'post_edit_AR.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' # перенапраление для неавторизованных
     
     def form_valid(self, form):
         form.instance.categoryType = 'AR'
         return super().form_valid(form)
 
-class ArticleUpdate(UpdateView):
+class ArticleUpdate(LoginRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'post_edit_AR.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' # перенапраление для неавторизованных
 
-class ArticleDelete(DeleteView):
+class ArticleDelete(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_confirm_delete.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' # перенапраление для неавторизованных
+
+
+
+
+
+
+# ========== АУТИФИКАЦИЯ ==========
+
+class ProtectedView(LoginRequiredMixin, TemplateView):
+    template_name = 'prodected_page.html'
+    login_url = '/accounts/login' # перенаправление для неавторизованных
+    redirect_field_name = 'next' # параметер для возврата после входа
+

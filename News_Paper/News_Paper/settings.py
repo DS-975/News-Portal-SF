@@ -138,3 +138,8 @@ STATICFILES_DIRS = [ BASE_DIR / 'static']
 # в папке static, которая находится внутри вашего проекта.
 # BASE_DIR — это папка, где находится ваш проект.
 # BASE_DIR / 'static' — это путь к папке static внутри вашего проекта.
+
+# Аутентификация
+LOGIN_REDIRECT_URL = "/news/"  # Куда после успешного входа
+LOGIN_URL = "/accounts/login/" # URL страницы входа
+LOGOUT_REDIRECT_URL = "/news/" # Куда после выхода
